@@ -7,6 +7,9 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
 from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import START, END, StateGraph
 
 from ollama_deep_researcher.configuration import Configuration, SearchAPI
@@ -62,7 +65,8 @@ def generate_search_query_with_structured_output(
     Returns:
         Dictionary with "search_query" key
     """
-    if configurable.use_tool_calling:
+    # OpenAI, Anthropic, and Gemini always use tool calling; other providers can use tool calling or JSON mode
+    if configurable.use_tool_calling or configurable.llm_provider in ["openai", "anthropic", "gemini"]:
         llm = get_llm(configurable).bind_tools([tool_class])
         result = llm.invoke(messages)
 
@@ -105,7 +109,28 @@ def get_llm(configurable: Configuration):
     Returns:
         Configured LLM instance
     """
-    if configurable.llm_provider == "lmstudio":
+    if configurable.llm_provider == "openai":
+        # OpenAI always uses tool calling mode, doesn't support format="json" parameter
+        return ChatOpenAI(
+            model=configurable.openai_model,
+            temperature=0,
+            api_key=configurable.openai_api_key,
+        )
+    elif configurable.llm_provider == "anthropic":
+        # Anthropic always uses tool calling mode, doesn't support format="json" parameter
+        return ChatAnthropic(
+            model=configurable.anthropic_model,
+            temperature=0,
+            api_key=configurable.anthropic_api_key,
+        )
+    elif configurable.llm_provider == "gemini":
+        # Gemini always uses tool calling mode, doesn't support format="json" parameter
+        return ChatGoogleGenerativeAI(
+            model=configurable.gemini_model,
+            temperature=0,
+            google_api_key=configurable.google_api_key,
+        )
+    elif configurable.llm_provider == "lmstudio":
         if configurable.use_tool_calling:
             return ChatLMStudio(
                 base_url=configurable.lmstudio_base_url,
@@ -139,7 +164,7 @@ def generate_query(state: SummaryState, config: RunnableConfig):
     """LangGraph node that generates a search query based on the research topic.
 
     Uses an LLM to create an optimized search query for web research based on
-    the user's research topic. Supports both LMStudio and Ollama as LLM providers.
+    the user's research topic. Supports Ollama, LMStudio, and OpenAI as LLM providers.
 
     Args:
         state: Current graph state containing the research topic
@@ -300,7 +325,25 @@ def summarize_sources(state: SummaryState, config: RunnableConfig):
     configurable = Configuration.from_runnable_config(config)
 
     # For summarization, we don't need structured output, so always use regular mode
-    if configurable.llm_provider == "lmstudio":
+    if configurable.llm_provider == "openai":
+        llm = ChatOpenAI(
+            model=configurable.openai_model,
+            temperature=0,
+            api_key=configurable.openai_api_key,
+        )
+    elif configurable.llm_provider == "anthropic":
+        llm = ChatAnthropic(
+            model=configurable.anthropic_model,
+            temperature=0,
+            api_key=configurable.anthropic_api_key,
+        )
+    elif configurable.llm_provider == "gemini":
+        llm = ChatGoogleGenerativeAI(
+            model=configurable.gemini_model,
+            temperature=0,
+            google_api_key=configurable.google_api_key,
+        )
+    elif configurable.llm_provider == "lmstudio":
         llm = ChatLMStudio(
             base_url=configurable.lmstudio_base_url,
             model=configurable.local_llm,

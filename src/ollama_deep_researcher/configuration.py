@@ -26,10 +26,10 @@ class Configuration(BaseModel):
         title="LLM Model Name",
         description="Name of the LLM model to use",
     )
-    llm_provider: Literal["ollama", "lmstudio"] = Field(
+    llm_provider: Literal["ollama", "lmstudio", "openai", "anthropic", "gemini"] = Field(
         default="ollama",
         title="LLM Provider",
-        description="Provider for the LLM (Ollama or LMStudio)",
+        description="Provider for the LLM (Ollama, LMStudio, OpenAI, Anthropic, or Gemini)",
     )
     search_api: Literal["perplexity", "tavily", "duckduckgo", "searxng"] = Field(
         default="duckduckgo", title="Search API", description="Web search API to use"
@@ -58,6 +58,36 @@ class Configuration(BaseModel):
         default=False,
         title="Use Tool Calling",
         description="Use tool calling instead of JSON mode for structured output",
+    )
+    openai_api_key: Optional[str] = Field(
+        default=None,
+        title="OpenAI API Key",
+        description="API key for OpenAI (if using OpenAI provider)",
+    )
+    openai_model: str = Field(
+        default="gpt-5.2",
+        title="OpenAI Model",
+        description="OpenAI model name to use",
+    )
+    anthropic_api_key: Optional[str] = Field(
+        default=None,
+        title="Anthropic API Key",
+        description="API key for Anthropic (if using Anthropic provider)",
+    )
+    anthropic_model: str = Field(
+        default="claude-sonnet-4-5-20250929",
+        title="Anthropic Model",
+        description="Anthropic model name to use",
+    )
+    google_api_key: Optional[str] = Field(
+        default=None,
+        title="Google API Key",
+        description="API key for Google AI (if using Gemini provider)",
+    )
+    gemini_model: str = Field(
+        default="gemini-3-flash-preview",
+        title="Gemini Model",
+        description="Gemini model name to use",
     )
 
     @classmethod

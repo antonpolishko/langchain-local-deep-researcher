@@ -69,6 +69,30 @@ LOCAL_LLM=qwen_qwq-32b  # Use the exact model name as shown in LMStudio
 LMSTUDIO_BASE_URL=http://localhost:1234/v1
 ```
 
+### Selecting Anthropic models
+
+1. Sign up for an Anthropic API key at [Anthropic Console](https://console.anthropic.com/).
+
+2. Update the `.env` file with the following Anthropic configuration settings:
+
+```shell
+LLM_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-xxxxx  # Your Anthropic API key
+ANTHROPIC_MODEL=claude-3-5-sonnet-20241022  # Model to use (e.g., claude-3-5-sonnet-20241022, claude-3-opus-20240229)
+```
+
+### Selecting Google Gemini models
+
+1. Get a Google API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+
+2. Update the `.env` file with the following Gemini configuration settings:
+
+```shell
+LLM_PROVIDER=gemini
+GOOGLE_API_KEY=xxxxx  # Your Google API key
+GEMINI_MODEL=gemini-2.0-flash-exp  # Model to use (e.g., gemini-2.0-flash-exp, gemini-1.5-pro)
+```
+
 ### Selecting search tool
 
 By default, it will use [DuckDuckGo](https://duckduckgo.com/) for web search, which does not require an API key. But you can also use [SearXNG](https://docs.searxng.org/), [Tavily](https://tavily.com/) or [Perplexity](https://www.perplexity.ai/hub/blog/introducing-the-sonar-pro-api) by adding their API keys to the environment file. Optionally, update the `.env` file with the following search tool configuration and API keys. If set, these values will take precedence over the defaults set in the `Configuration` class in `configuration.py`. 
